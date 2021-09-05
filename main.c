@@ -61,14 +61,14 @@ int inv_mod(const unsigned int a, const unsigned int m)
                     // u = u -v;
                     temp = (u < v);
                     u = temp ? v - u : u - v;
-                    un = temp | un;
+                    un = temp ^ un;
 
                     // r = r - s
                     if (rn == sn)
                     {
                         temp = (r < s);
                         r = temp ? s - r : r - s;
-                        rn = temp | rn;
+                        rn = temp ^ rn;
                     }
                     else if (rn == 0 && sn)
                     {
@@ -76,8 +76,8 @@ int inv_mod(const unsigned int a, const unsigned int m)
                     }
                     else
                     {
-                        rn = s < r;
-                        r = rn ? r - s : s - r;
+                        r = r + s;
+                        rn = 1;
                     }
                 }
                 else
@@ -85,14 +85,14 @@ int inv_mod(const unsigned int a, const unsigned int m)
                     // v = v - u
                     temp = (v < u);
                     v = temp ? u - v : v - u;
-                    vn = temp | vn;
+                    vn = temp ^ vn;
 
                     // s = s - r
                     if (sn == rn)
                     {
                         temp = (s < r);
                         s = temp ? r - s : s - r;
-                        sn = temp | sn;
+                        sn = temp ^ sn;
                     }
                     else if (sn == 0 && rn)
                     {
@@ -100,8 +100,8 @@ int inv_mod(const unsigned int a, const unsigned int m)
                     }
                     else
                     {
-                        sn = r < s;
-                        s = sn ? s - r : r - s;
+                        s = s + r;
+                        sn = 1;
                     }
                 }
             }
@@ -182,6 +182,7 @@ int inv_mod(const unsigned int a, const unsigned int m)
         r = s;
         rn = sn;
 
+        u = v;
         un = vn;
     }
 
@@ -207,7 +208,10 @@ int inv_mod(const unsigned int a, const unsigned int m)
 int main()
 {
     // int a = 10, m = 13;
-    int a = 3, m = 7;
+    // int a = 3, m = 997;
+    // int a = 2456, m = 5179;
+    // int a = 10, m = 49993;
+    int a = 2397485, m = 305175781;
     int result = inv_mod(a, m);
     printf("%d\n", result);
 
