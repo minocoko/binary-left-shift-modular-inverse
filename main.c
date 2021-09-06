@@ -2,24 +2,32 @@
 
 // Function to find modular inverse of a under modulo m
 // Assumption: m is prime
-int inv_mod(const unsigned int a, const unsigned int m)
+unsigned int inv_mod(const unsigned int a, const unsigned int m)
 {
     unsigned int u = m;
     int un = 0;
     unsigned int v = a;
     int vn = 0;
+
+    // check most significant bit
+    const int u_msb = 32 - __builtin_clz(u);
+    const int v_msb = 32 - __builtin_clz(v);
+    const int msb_diff = u_msb - v_msb;
+    const int un1 = 1 << u_msb;
+
+    int cu = 1;
+    unsigned int two_pow_of_cu = 1 << 1;
+    int cv = msb_diff + 1;
+    unsigned int two_pow_of_cv = 1 << cv;
+
+    u = u << 1;
+    v = v << cv;
+
     unsigned int r = 0;
     int rn = 0;
-    unsigned int s = 1;
+    unsigned int s = 1 << (cv - 1);
     int sn = 0;
 
-    int cu = 0;
-    int cv = 0;
-
-    const int most_significant_bit = 32 - __builtin_clz(u);
-    const int un1 = 2 << (most_significant_bit - 1);
-    int two_pow_of_cu = 1;
-    int two_pow_of_cv = 1;
     int temp = 0;
     while (u != two_pow_of_cu && v != two_pow_of_cv)
     {
@@ -207,11 +215,11 @@ int inv_mod(const unsigned int a, const unsigned int m)
 
 int main()
 {
-    // int a = 10, m = 13;
-    // int a = 3, m = 997;
-    // int a = 2456, m = 5179;
-    // int a = 10, m = 49993;
-    int a = 2397485, m = 305175781;
+    // int a = 10, m = 13;              // output 4 (4 * 10 % 13 == 1)
+    // int a = 3, m = 997;              // output 665 (665 * 3 % 997 == 1)
+    // int a = 2456, m = 5179;          // output 2541 (2541 * 2456 % 5179 == 1)
+    // int a = 10, m = 49993;           // output 14998 (14998 * 10 % 49993 == 1)
+    int a = 2397485, m = 305175781; // output 197958680 (197958680 * 2397485 % 305175781 == 1)
     int result = inv_mod(a, m);
     printf("%d\n", result);
 
