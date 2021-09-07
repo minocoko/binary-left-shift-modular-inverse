@@ -1,5 +1,7 @@
 #include <stdio.h>
 
+#define ABS(x) (x < 0) ? (0 -x): x
+
 // Function to find modular inverse of a under modulo m
 // Assumption: m is prime
 unsigned int inv_mod(const unsigned int a, const unsigned int m)
@@ -8,42 +10,39 @@ unsigned int inv_mod(const unsigned int a, const unsigned int m)
     const int u_msb = 32 - __builtin_clz(m);
     const int v_msb = 32 - __builtin_clz(a);
     const int msb_diff = u_msb - v_msb;
-    const unsigned long un1 = (unsigned long)1 << u_msb;
+    const long un1 = 1L << u_msb;
 
-    unsigned long u = m;
-    int un = 0;
-
-    unsigned long v = a;
-    int vn = 0;
+    long u = m;
+    long abs_u = u;
+    long v = a;
+    long abs_v = v;
 
     int cu = 0;
-    unsigned long two_pow_of_cu = 1;
+    long two_pow_of_cu = 1;
     int cv = 0;
-    unsigned long two_pow_of_cv = 1;
-    unsigned long r = 0;
-    int rn = 0;
-    unsigned long s = 1;
-    int sn = 0;
+    long two_pow_of_cv = 1;
+    long r = 0;
+    long s = 1;
 
+    // reduce unnecessary loop times
     if (msb_diff > 0)
     {
         cu = 1;
         two_pow_of_cu = 1 << 1;
         cv = msb_diff + 1;
-        two_pow_of_cv = (unsigned long)1 << cv;
+        two_pow_of_cv = 1L << cv;
 
         u <<= 1;
         v <<= cv;
 
-        s = (unsigned long)1 << (cv - 1);
+        s = 1L << msb_diff;
     }
 
-    int temp = 0;
-    while (u != two_pow_of_cu && v != two_pow_of_cv)
+    while (abs_u != two_pow_of_cu && abs_v != two_pow_of_cv)
     {
-        if (u < un1)
+        if (abs_u < un1)
         {
-            u = u << 1;
+            u <<= 1;
             if (cu >= cv)
             {
                 r <<= 1;
@@ -55,9 +54,9 @@ unsigned int inv_mod(const unsigned int a, const unsigned int m)
             cu++;
             two_pow_of_cu <<= 1;
         }
-        else if (v < un1)
+        else if (abs_v < un1)
         {
-            v = v << 1;
+            v <<= 1;
             if (cv >= cu)
             {
                 s <<= 1;
@@ -71,56 +70,18 @@ unsigned int inv_mod(const unsigned int a, const unsigned int m)
         }
         else
         {
-            if (un == vn)
+            if ((u >= 0 && v >= 0) || (u < 0 && v < 0))
             {
                 // op -
                 if (cu <= cv)
                 {
-                    // u = u -v;
-                    temp = (u < v);
-                    u = temp ? v - u : u - v;
-                    un = temp ^ un;
-
-                    // r = r - s
-                    if (rn == sn)
-                    {
-                        temp = (r < s);
-                        r = temp ? s - r : r - s;
-                        rn = temp ^ rn;
-                    }
-                    else if (rn == 0 && sn)
-                    {
-                        r = r + s;
-                    }
-                    else
-                    {
-                        r = r + s;
-                        rn = 1;
-                    }
+                    u = u - v;
+                    r = r - s;
                 }
                 else
                 {
-                    // v = v - u
-                    temp = (v < u);
-                    v = temp ? u - v : v - u;
-                    vn = temp ^ vn;
-
-                    // s = s - r
-                    if (sn == rn)
-                    {
-                        temp = (s < r);
-                        s = temp ? r - s : s - r;
-                        sn = temp ^ sn;
-                    }
-                    else if (sn == 0 && rn)
-                    {
-                        s = s + r;
-                    }
-                    else
-                    {
-                        s = s + r;
-                        sn = 1;
-                    }
+                    v = v - u;
+                    s = s - r;
                 }
             }
             else
@@ -128,63 +89,13 @@ unsigned int inv_mod(const unsigned int a, const unsigned int m)
                 // op +
                 if (cu <= cv)
                 {
-                    // u = u + v
-                    if (un == 0 && vn)
-                    {
-                        un = u < v;
-                        u = un ? v - u : u - v;
-                    }
-                    else if (un && vn == 0)
-                    {
-                        un = v < u;
-                        u = un ? u - v : v - u;
-                    }
-
-                    // r = r + s
-                    if (rn == sn)
-                    {
-                        r = r + s;
-                    }
-                    else if (rn == 0 && sn)
-                    {
-                        rn = r < s;
-                        r = rn ? s - r : r - s;
-                    }
-                    else
-                    {
-                        rn = s < r;
-                        r = rn ? r - s : s - r;
-                    }
+                    u = u + v;
+                    r = r + s;
                 }
                 else
                 {
-                    // v = v + u;
-                    if (vn == 0 && un)
-                    {
-                        vn = v < u;
-                        v = vn ? u - v : v - u;
-                    }
-                    else if (vn && un == 0)
-                    {
-                        vn = u < v;
-                        v = vn ? v - u : u - v;
-                    }
-
-                    // s = s + r
-                    if (sn == rn)
-                    {
-                        s = s + r;
-                    }
-                    else if (sn == 0 && rn)
-                    {
-                        sn = s < r;
-                        s = sn ? r - s : s - r;
-                    }
-                    else
-                    {
-                        sn = r < s;
-                        s = sn ? s - r : r - s;
-                    }
+                    v = v + u;
+                    s = s + r;
                 }
             }
         }
@@ -193,31 +104,32 @@ unsigned int inv_mod(const unsigned int a, const unsigned int m)
         {
             return 0;
         }
+
+        abs_u = ABS(u);
+        abs_v = ABS(v);
     }
 
-    if (v == two_pow_of_cv)
+    if (abs_v == two_pow_of_cv)
     {
         r = s;
-        rn = sn;
-
         u = v;
-        un = vn;
     }
 
-    if (un)
+    if (u < 0)
     {
-        if (rn)
+        if (r < 0)
         {
-            rn = 0;
+            r = -r;
         }
         else
         {
             r = m - r;
         }
     }
-    if (rn)
+
+    if (r < 0)
     {
-        r = m - r;
+        r = m + r;
     }
 
     return r;
