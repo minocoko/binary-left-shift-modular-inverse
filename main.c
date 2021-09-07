@@ -4,29 +4,39 @@
 // Assumption: m is prime
 unsigned int inv_mod(const unsigned int a, const unsigned int m)
 {
-    unsigned int u = m;
+    // check most significant bit
+    const int u_msb = 32 - __builtin_clz(m);
+    const int v_msb = 32 - __builtin_clz(a);
+    const int msb_diff = u_msb - v_msb;
+    const unsigned long un1 = (unsigned long)1 << u_msb;
+
+    unsigned long u = m;
     int un = 0;
-    unsigned int v = a;
+
+    unsigned long v = a;
     int vn = 0;
 
-    // check most significant bit
-    const int u_msb = 32 - __builtin_clz(u);
-    const int v_msb = 32 - __builtin_clz(v);
-    const int msb_diff = u_msb - v_msb;
-    const int un1 = 1 << u_msb;
-
-    int cu = 1;
-    unsigned int two_pow_of_cu = 1 << 1;
-    int cv = msb_diff + 1;
-    unsigned int two_pow_of_cv = 1 << cv;
-
-    u = u << 1;
-    v = v << cv;
-
-    unsigned int r = 0;
+    int cu = 0;
+    unsigned long two_pow_of_cu = 1;
+    int cv = 0;
+    unsigned long two_pow_of_cv = 1;
+    unsigned long r = 0;
     int rn = 0;
-    unsigned int s = 1 << (cv - 1);
+    unsigned long s = 1;
     int sn = 0;
+
+    if (msb_diff > 0)
+    {
+        cu = 1;
+        two_pow_of_cu = 1 << 1;
+        cv = msb_diff + 1;
+        two_pow_of_cv = (unsigned long)1 << cv;
+
+        u <<= 1;
+        v <<= cv;
+
+        s = (unsigned long)1 << (cv - 1);
+    }
 
     int temp = 0;
     while (u != two_pow_of_cu && v != two_pow_of_cv)
@@ -36,11 +46,11 @@ unsigned int inv_mod(const unsigned int a, const unsigned int m)
             u = u << 1;
             if (cu >= cv)
             {
-                r = r << 1;
+                r <<= 1;
             }
             else
             {
-                s = s >> 1;
+                s >>= 1;
             }
             cu++;
             two_pow_of_cu <<= 1;
@@ -50,11 +60,11 @@ unsigned int inv_mod(const unsigned int a, const unsigned int m)
             v = v << 1;
             if (cv >= cu)
             {
-                s = s << 1;
+                s <<= 1;
             }
             else
             {
-                r = r >> 1;
+                r >>= 1;
             }
             cv++;
             two_pow_of_cv <<= 1;
@@ -215,13 +225,15 @@ unsigned int inv_mod(const unsigned int a, const unsigned int m)
 
 int main()
 {
-    // int a = 10, m = 13;              // output 4 (4 * 10 % 13 == 1)
-    // int a = 3, m = 997;              // output 665 (665 * 3 % 997 == 1)
-    // int a = 2456, m = 5179;          // output 2541 (2541 * 2456 % 5179 == 1)
-    // int a = 10, m = 49993;           // output 14998 (14998 * 10 % 49993 == 1)
-    int a = 2397485, m = 305175781; // output 197958680 (197958680 * 2397485 % 305175781 == 1)
-    int result = inv_mod(a, m);
-    printf("%d\n", result);
+    // unsigned int a = 10, m = 13;                     // output 4 (4 * 10 % 13 == 1)
+    // unsigned int a = 3, m = 997;                     // output 665 (665 * 3 % 997 == 1)
+    // unsigned int a = 2456, m = 5179;                 // output 2541 (2541 * 2456 % 5179 == 1)
+    // unsigned int a = 10, m = 49993;                  // output 14998 (14998 * 10 % 49993 == 1)
+    unsigned int a = 2397485, m = 305175781;            // output 197958680 (197958680 * 2397485 % 305175781 == 1)
+    // unsigned int a = 2147483648u, m = 2521008887u;   // output 2487746851 (2487746851 * 2147483648 % 2521008887 == 1)
+    // unsigned int a = 2147483649u, m = 2521008887u;
+    unsigned int result = inv_mod(a, m);
+    printf("%10u * %10u %% %10u == 1\n", a, result, m);
 
     return 0;
 }
