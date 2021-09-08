@@ -1,11 +1,20 @@
 #include <stdio.h>
 
-#define ABS(x) (x < 0) ? (0 -x): x
+#define ABS(x) (x < 0) ? (0 - x) : x
 
 // Function to find modular inverse of a under modulo m
 // Assumption: m is prime
 unsigned int inv_mod(const unsigned int a, const unsigned int m)
 {
+    if (a == 1)
+    {
+        return a;
+    }
+    if (a == 2)
+    {
+        return (m + 1)  >> 1;
+    }
+
     // check most significant bit
     const int u_msb = 32 - __builtin_clz(m);
     const int v_msb = 32 - __builtin_clz(a);
@@ -38,7 +47,7 @@ unsigned int inv_mod(const unsigned int a, const unsigned int m)
         s = 1L << msb_diff;
     }
 
-    while (abs_u != two_pow_of_cu && abs_v != two_pow_of_cv)
+    do
     {
         if (abs_u < un1)
         {
@@ -107,7 +116,7 @@ unsigned int inv_mod(const unsigned int a, const unsigned int m)
 
         abs_u = ABS(u);
         abs_v = ABS(v);
-    }
+    } while (abs_u != two_pow_of_cu && abs_v != two_pow_of_cv);
 
     if (abs_v == two_pow_of_cv)
     {
@@ -142,6 +151,8 @@ int main()
     // unsigned int a = 2456, m = 5179;                 // output 2541 (2541 * 2456 % 5179 == 1)
     // unsigned int a = 10, m = 49993;                  // output 14998 (14998 * 10 % 49993 == 1)
     unsigned int a = 2397485, m = 305175781;            // output 197958680 (197958680 * 2397485 % 305175781 == 1)
+    // unsigned int a = 2, m = 2521008887u;             // output 1260504444 (1260504444 * 2 % 2521008887 == 1)
+    // unsigned int a = 65536, m = 2521008887u;         // output 2487746851 (2487746851 * 2147483648 % 2521008887 == 1)
     // unsigned int a = 2147483648u, m = 2521008887u;   // output 2487746851 (2487746851 * 2147483648 % 2521008887 == 1)
     // unsigned int a = 2147483649u, m = 2521008887u;
     unsigned int result = inv_mod(a, m);
