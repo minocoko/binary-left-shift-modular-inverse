@@ -6,14 +6,15 @@
 // Assumption: m is prime
 unsigned int inv_mod(const unsigned int a, const unsigned int m)
 {
-    if (a == 1)
-    {
-        return a;
-    }
-    if (a == 2)
-    {
-        return (m + 1)  >> 1;
-    }
+    // How often does this really happen? it should "almost" never happen (but would be faster)
+    // if (a == 1)
+    // {
+    //     return a;
+    // }
+    // if (a == 2)
+    // {
+    //     return (m + 1)  >> 1;
+    // }
 
     // check most significant bit
     const int u_msb = 32 - __builtin_clz(m);
@@ -126,14 +127,7 @@ unsigned int inv_mod(const unsigned int a, const unsigned int m)
 
     if (u < 0)
     {
-        if (r < 0)
-        {
-            r = -r;
-        }
-        else
-        {
-            r = m - r;
-        }
+        r = (r < 0) ? (0 - r) : (m - r);
     }
 
     if (r < 0)
@@ -146,15 +140,17 @@ unsigned int inv_mod(const unsigned int a, const unsigned int m)
 
 int main()
 {
-    // unsigned int a = 10, m = 13;                     // output 4 (4 * 10 % 13 == 1)
-    // unsigned int a = 3, m = 997;                     // output 665 (665 * 3 % 997 == 1)
-    // unsigned int a = 2456, m = 5179;                 // output 2541 (2541 * 2456 % 5179 == 1)
-    // unsigned int a = 10, m = 49993;                  // output 14998 (14998 * 10 % 49993 == 1)
-    unsigned int a = 2397485, m = 305175781;            // output 197958680 (197958680 * 2397485 % 305175781 == 1)
-    // unsigned int a = 2, m = 2521008887u;             // output 1260504444 (1260504444 * 2 % 2521008887 == 1)
-    // unsigned int a = 65536, m = 2521008887u;         // output 2487746851 (2487746851 * 2147483648 % 2521008887 == 1)
-    // unsigned int a = 2147483648u, m = 2521008887u;   // output 2487746851 (2487746851 * 2147483648 % 2521008887 == 1)
-    // unsigned int a = 2147483649u, m = 2521008887u;
+    // const unsigned int a = 10, m = 13;                       // output 4 (4 * 10 % 13 == 1)
+    // const unsigned int a = 3, m = 997;                       // output 665 (665 * 3 % 997 == 1)
+    // const unsigned int a = 2456, m = 5179;                   // output 2541 (2541 * 2456 % 5179 == 1)
+    // const unsigned int a = 10, m = 49993;                    // output 14998 (14998 * 10 % 49993 == 1)
+    const unsigned int a = 2397485, m = 305175781;              // output 197958680 (197958680 * 2397485 % 305175781 == 1)
+    // const unsigned int a = 2, m = 2521008887u;               // output 1260504444 (1260504444 * 2 % 2521008887 == 1)
+    // const unsigned int a = 65536, m = 2521008887u;           // output 2487746851 (2487746851 * 2147483648 % 2521008887 == 1)
+    // const unsigned int a = 2147483647u, m = 2521008887u;     // output 2069798517 (2069798517 * 2147483647 % 2521008887 == 1)
+    // const unsigned int a = 2147483648u, m = 2521008887u;     // output 2487746851 (2487746851 * 2147483648 % 2521008887 == 1)
+    // const unsigned int a = 2147483649u, m = 2521008887u;     // output 2058376504 (2058376504 * 2147483649 % 2521008887 == 1)
+    // const unsigned int a = 4294967290u, m = 4294967291u;     // ouput 4294967290 (4294967290 * 4294967290 % 4294967291 == 1)
     unsigned int result = inv_mod(a, m);
     printf("%10u * %10u %% %10u == 1\n", a, result, m);
 
