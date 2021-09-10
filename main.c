@@ -28,9 +28,9 @@ unsigned int inv_mod(const unsigned int a, const unsigned int m)
     long abs_v = v;
 
     int cu = 0;
-    long two_pow_of_cu = 1;
+    unsigned int two_pow_of_cu = 1;
     int cv = 0;
-    long two_pow_of_cv = 1;
+    unsigned int two_pow_of_cv = 1;
     long r = 0;
     long s = 1;
 
